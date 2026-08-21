@@ -55,3 +55,110 @@
     }
   };
 })();
+/* ========== ✅ 저장 함수 추가 ========== */
+  window.saveToFirestore = {
+    async updateTransaction(transaction) {
+      try {
+        const docId = String(transaction.id);
+        await db.collection('transactions').doc(docId).set(transaction);
+        console.log('✅ 거래 저장:', docId, transaction);
+      } catch (err) {
+        console.error('❌ 거래 저장 실패:', err);
+        throw err;
+      }
+    },
+    async updateCategory(category) {
+      try {
+        const docId = String(category.key);
+        await db.collection('categories').doc(docId).set(category);
+        console.log('✅ 카테고리 저장:', docId);
+      } catch (err) {
+        console.error('❌ 카테고리 저장 실패:', err);
+        throw err;
+      }
+    },
+    async updateBudget(budget) {
+      try {
+        const docId = `${budget.month}_${budget.category}`;
+        await db.collection('budgets').doc(docId).set(budget);
+        console.log('✅ 예산 저장:', docId);
+      } catch (err) {
+        console.error('❌ 예산 저장 실패:', err);
+        throw err;
+      }
+    },
+    async updateIncome(income) {
+      try {
+        const docId = `${income.month}_${income.category}`;
+        await db.collection('incomes').doc(docId).set(income);
+        console.log('✅ 수익 저장:', docId);
+      } catch (err) {
+        console.error('❌ 수익 저장 실패:', err);
+        throw err;
+      }
+    },
+    async updateDebt(debt) {
+      try {
+        const docId = String(debt.id);
+        await db.collection('debts').doc(docId).set(debt);
+        console.log('✅ 대출 저장:', docId);
+      } catch (err) {
+        console.error('❌ 대출 저장 실패:', err);
+        throw err;
+      }
+    },
+    async updateCard(card) {
+      try {
+        const docId = String(card.key);
+        await db.collection('cards').doc(docId).set(card);
+        console.log('✅ 카드 저장:', docId);
+      } catch (err) {
+        console.error('❌ 카드 저장 실패:', err);
+        throw err;
+      }
+    },
+    async updateCardBill(bill) {
+      try {
+        const docId = String(bill.id);
+        await db.collection('cardBills').doc(docId).set(bill);
+        console.log('✅ 카드 결제예정 저장:', docId);
+      } catch (err) {
+        console.error('❌ 카드 결제예정 저장 실패:', err);
+        throw err;
+      }
+    },
+    async updateShoppingItem(item) {
+      try {
+        const docId = String(item.id);
+        await db.collection('shoppingItems').doc(docId).set(item);
+        console.log('✅ 쇼핑리스트 저장:', docId);
+      } catch (err) {
+        console.error('❌ 쇼핑리스트 저장 실패:', err);
+        throw err;
+      }
+    },
+    async deleteDocument(collection, docId) {
+      try {
+        await db.collection(collection).doc(String(docId)).delete();
+        console.log('✅ 문서 삭제:', collection, docId);
+      } catch (err) {
+        console.error('❌ 문서 삭제 실패:', err);
+        throw err;
+      }
+    },
+    async saveMany(collection, documents) {
+      try {
+        const batch = db.batch();
+        documents.forEach(doc => {
+          const idField = { categories: 'key', transactions: 'id', debts: 'id', cards: 'key', cardBills: 'id', shoppingItems: 'id' }[collection] || 'id';
+          const docId = String(doc[idField]);
+          batch.set(db.collection(collection).doc(docId), doc);
+        });
+        await batch.commit();
+        console.log(`✅ ${documents.length}개 문서 일괄 저장:`, collection);
+      } catch (err) {
+        console.error(`❌ ${collection} 일괄 저장 실패:`, err);
+        throw err;
+      }
+    },
+  };
