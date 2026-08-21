@@ -21,6 +21,7 @@
 
 <!-- 목업 데이터 (2단계에서 Firestore fetch로 교체) -->
 <script src="mockData.js"></script>
+<script src="firestore-connector.js"></script>
 
 <!-- 앱 본체 -->
 <script type="text/babel" data-presets="react">
@@ -2920,7 +2921,10 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+(async function boot() {
+  if (window.loadFirestoreData) await window.loadFirestoreData();
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+})();
 </script>
 </body>
 </html>
