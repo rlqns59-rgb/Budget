@@ -1359,6 +1359,25 @@ function BudgetTab({
     setYm(`${nd.getFullYear()}-${String(nd.getMonth() + 1).padStart(2, '0')}`);
   };
 
+  // 전월 변동비 예산을 지금 보고 있는 달로 복사 (고정비 제외)
+  const prevYm = (() => {
+    const [y, m] = ym.split('-').map(Number);
+    const nd = new Date(y, m - 2, 1);
+    return `${nd.getFullYear()}-${String(nd.getMonth() + 1).padStart(2, '0')}`;
+  })();
+  const prevMonthLabel = `${parseInt(prevYm.slice(5), 10)}월`;
+  const copyPrevMonthBudget = () => {
+    const variableLabels = new Set(variableCats.map((c) => c.label));
+    const prevBudgets = budgets.filter((b) => b.month === prevYm && variableLabels.has(b.category));
+    if (prevBudgets.length === 0) { alert(`${prevMonthLabel} 변동비 예산이 없어요.`); return; }
+    const willChange = prevBudgets.some((b) => {
+      const cur = budgets.find((x) => x.month === ym && x.category === b.category);
+      return cur && cur.limit > 0 && cur.limit !== b.limit;
+    });
+    if (willChange && !window.confirm(`이번 달에 이미 입력한 예산이 ${prevMonthLabel} 금액으로 바뀌어요. 복사할까요?`)) return;
+    prevBudgets.forEach((b) => onSetBudget(ym, b.category, b.limit));
+  };
+
   const spentByCat = useMemo(() => {
     const m = {};
     transactions.forEach((t) => {
@@ -1546,6 +1565,7 @@ function BudgetTab({
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div className="section-title">카테고리별 예산</div>
             <button className="cat-mgr-btn" onClick={() => setShowCatMgr(true)}>⚙ 카테고리</button>
+            <button className="cat-mgr-btn" onClick={copyPrevMonthBudget}>📋 {prevMonthLabel} 예산 복사</button>
           </div>
         </div>
         <div className="budget-list">
